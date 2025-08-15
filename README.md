@@ -33,3 +33,21 @@ These models introduce and formally specify the core components of the Dædælus
 ## Engagement
 
 We invite collaboration and review. These models are not static documents; they are live computational essays intended to spark discussion and drive the OAE specification forward. Please engage with them, question their assumptions, and help us architect the future.
+https://www.wolframcloud.com/obj/gladishdean/Published/NBforFMS.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/sliceProtocolForFMS.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/wolfram%20cloud%20for%20sahas.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/wolfram%20cloud%20for%20sahas2.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/wolfram%20cloud%20for%20sahas3.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/wolfram%20cloud%20for%20sahas4.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/python%20ddl.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/python%20ddl%202.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/cellular%20automata%20-%20from%20classical%20computation%20to%20quantum%20error%20correction.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/2.%20cellular%20automata%20-%20from%20classical%20computation%20to%20quantum%20error%20correction.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/3.%20cellular%20automata%20-%20from%20classical%20computation%20to%20quantum%20error%20correction.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/4.%20cellular%20automata%20-%20from%20classical%20computation%20to%20quantum%20error%20correction.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/5.%20cellular%20automata%20-%20from%20classical%20computation%20to%20quantum%20error%20correction.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/6.%20OAE-SPEC-MAIN.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/7.%20java.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/8.%20sahas.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/10Ants.nb
+https://www.wolframcloud.com/obj/gladishdean/Published/6.%200AE-SPEC-MAIN.nb
