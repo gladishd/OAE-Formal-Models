@@ -33,6 +33,7 @@ These models introduce and formally specify the core components of the Dædælus
 ## Engagement
 
 We invite collaboration and review. These models are not static documents; they are live computational essays intended to spark discussion and drive the OAE specification forward. Please engage with them, question their assumptions, and help us architect the future.
+https://www.wolframcloud.com/obj/gladishdean/Published/dean-gladish-final-notebook.nb
 https://www.wolframcloud.com/obj/gladishdean/Published/Clos%20vs%20Fabrix.nb
 https://www.wolframcloud.com/obj/gladishdean/Published/NBforFMS.nb
 https://www.wolframcloud.com/obj/gladishdean/Published/sliceProtocolForFMS.nb
