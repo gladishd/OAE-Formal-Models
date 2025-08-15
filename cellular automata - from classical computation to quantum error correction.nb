@@ -1,0 +1,2064 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 14.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     82491,       2056]
+NotebookOptionsPosition[     78666,       1991]
+NotebookOutlinePosition[     79062,       2007]
+CellTagsIndexPosition[     79019,       2004]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[TextData[StyleBox["#1 Cellular Automata- From Classical Computation to \
+Quantum Error Correction #1",
+ FontSize->33,
+ FontColor->RGBColor[1, 0.5, 0]]], "Input",
+ PageWidth->WindowWidth,
+ CellChangeTimes->{{3.9598808645809603`*^9, 3.959880868815897*^9}, 
+   3.959883130305579*^9, 3.959883465960499*^9, 3.959883577437866*^9, {
+   3.959883995163224*^9, 3.959884026489902*^9}},
+ FontFamily->"EB Garamond",
+ FontWeight->"Regular",
+ Background->GrayLevel[
+  1],ExpressionUUID->"8df16be1-1fc4-4456-a295-9a6216ca93fa"],
+
+Cell["\<\
+This notebook serves as an executable specification for our FabricCalculus, a \
+foundational component of the Daedaelus Transaction Fabric. We move beyond \
+the one-dimensional and flawed metric of bandwidth, instead defining a \
+multi-dimensional FabricMetricTensor that calculates a true \
+TransactionalDistance based on a weighted policy of latency, bandwidth, and \
+link integrity. The GeodesicTransactionRouter acts as the intelligence of the \
+Graph Virtual Machine (GVM), computing the optimal \"geodesic\" path across a \
+given N2N Lattice based on these application-defined policies. The \
+interactive visualization demonstrates this principle in action, showing how \
+the ideal transaction path dynamically reroutes in response to changing link \
+conditions, providing a formal, \"code-as-proof\" model for a resilient and \
+policy-driven network fabric.\
+\>", "Input",
+ PageWidth->WindowWidth,
+ CellChangeTimes->{{3.9598808645809603`*^9, 3.959880868815897*^9}, 
+   3.959883130305579*^9, 3.959883465960499*^9, 3.959883577437866*^9},
+ FontFamily->"EB Garamond",
+ FontWeight->"Regular",
+ Background->GrayLevel[
+  1],ExpressionUUID->"b0a990e9-486d-48c9-bdd0-0e835dbce96a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"BeginPackage", "[", "\"\<Daedalus`FabricCalculus`\>\"", "]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"FabricMetricTensor", "::", "usage"}], "MessageName"], "=", 
+   "\"\<FabricMetricTensor[lat,bw,integrity] \[RightArrow] Association with \
+keys    \\\"Metrics\\\" and \\\"TransactionalDistance\\\".\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"GeodesicTransactionRouter", "::", "usage"}], "MessageName"], 
+   "=", "\"\<GeodesicTransactionRouter[topology, weights] \[RightArrow] \
+Association with    keys \\\"GraphObject\\\" and \
+\\\"CalculateGeodesicPath\\\".\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "FabricMetricTensor", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"FabricMetricTensor", "[", 
+    RowBox[{
+     RowBox[{"lat_", "?", "NumericQ"}], ",", 
+     RowBox[{"bw_", "?", "NumericQ"}], ",", 
+     RowBox[{"integ_", "?", "NumericQ"}]}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"m", "=", 
+       RowBox[{"{", 
+        RowBox[{"lat", ",", 
+         FractionBox["1", 
+          RowBox[{"Max", "[", 
+           RowBox[{"bw", ",", "$MachineEpsilon"}], "]"}]], ",", 
+         RowBox[{"1", "-", "integ"}]}], "}"}]}], "}"}], ",", 
+     RowBox[{"Association", "[", 
+      RowBox[{
+       RowBox[{"\"\<Metrics\>\"", "\[Rule]", "m"}], ",", 
+       RowBox[{"\"\<TransactionalDistance\>\"", "\[Rule]", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"m", ".", "#1"}], "&"}], ")"}]}]}], "]"}]}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "GeodesicTransactionRouter", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"GeodesicTransactionRouter", "[", 
+    RowBox[{"topo_Association", ",", 
+     RowBox[{"weights", ":", 
+      RowBox[{"{", 
+       RowBox[{"__", "?", "NumericQ"}], "}"}]}]}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"edges", ",", "verts", ",", "wts", ",", "g"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"edges", "=", 
+       RowBox[{"Keys", "[", "topo", "]"}]}], ";", 
+      RowBox[{"verts", "=", 
+       RowBox[{"DeleteDuplicates", "[", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{"List", "@@@", "edges"}], "]"}], "]"}]}], ";", 
+      RowBox[{"wts", "=", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"topo", "[", "#1", "]"}], "[", 
+            "\"\<TransactionalDistance\>\"", "]"}], "[", "weights", "]"}], 
+          "&"}], ")"}], "/@", "edges"}]}], ";", 
+      RowBox[{"g", "=", 
+       RowBox[{"Graph", "[", 
+        RowBox[{"verts", ",", "edges", ",", 
+         RowBox[{"EdgeWeight", "\[Rule]", "wts"}], ",", 
+         RowBox[{
+         "GraphLayout", "\[Rule]", "\"\<SpringElectricalEmbedding\>\""}]}], 
+        "]"}]}], ";", 
+      RowBox[{"Association", "[", 
+       RowBox[{
+        RowBox[{"\"\<Topology\>\"", "\[Rule]", "topo"}], ",", 
+        RowBox[{"\"\<PolicyWeights\>\"", "\[Rule]", "weights"}], ",", 
+        RowBox[{"\"\<GraphObject\>\"", "\[Rule]", "g"}], ",", 
+        RowBox[{"\"\<CalculateGeodesicPath\>\"", "\[RuleDelayed]", 
+         RowBox[{"Function", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"src", ",", "dst"}], "}"}], ",", 
+           RowBox[{"Module", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"p", ",", "dist"}], "}"}], ",", 
+             RowBox[{
+              RowBox[{"p", "=", 
+               RowBox[{"FindShortestPath", "[", 
+                RowBox[{"g", ",", "src", ",", "dst"}], "]"}]}], ";", 
+              RowBox[{"dist", "=", 
+               RowBox[{"Total", "[", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"topo", "[", "#1", "]"}], "[", 
+                    "\"\<TransactionalDistance\>\"", "]"}], "[", "weights", 
+                    "]"}], "&"}], ")"}], "/@", 
+                 RowBox[{"UndirectedEdge", "@@@", 
+                  RowBox[{"Partition", "[", 
+                   RowBox[{"p", ",", "2", ",", "1"}], "]"}]}]}], "]"}]}], ";", 
+              RowBox[{"{", 
+               RowBox[{"p", ",", "dist"}], "}"}]}]}], "]"}]}], "]"}]}]}], 
+       "]"}]}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"n2nLattice", "=", 
+   RowBox[{"Association", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"\"\<A\>\"", "\[UndirectedEdge]", "\"\<B\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"10", ",", "100", ",", "0.999"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<A\>\"", "\[UndirectedEdge]", "\"\<C\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"12", ",", "100", ",", "0.998"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<B\>\"", "\[UndirectedEdge]", "\"\<C\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"11", ",", "100", ",", "0.999"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<B\>\"", "\[UndirectedEdge]", "\"\<D\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"9", ",", "100", ",", "0.9999"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<C\>\"", "\[UndirectedEdge]", "\"\<D\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"80", ",", "20", ",", "0.85"}], "]"}]}]}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"With", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"w", "=", 
+      RowBox[{"{", 
+       RowBox[{"0.5", ",", "0.3", ",", "0.2"}], "}"}]}], "}"}], ",", 
+    RowBox[{"Show", "[", 
+     RowBox[{"Graph", "[", 
+      RowBox[{
+       RowBox[{"DeleteDuplicates", "[", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{"List", "@@@", 
+          RowBox[{"Keys", "[", "n2nLattice", "]"}]}], "]"}], "]"}], ",", 
+       RowBox[{"Keys", "[", "n2nLattice", "]"}], ",", 
+       RowBox[{"VertexLabels", "\[Rule]", "\"\<Name\>\""}], ",", 
+       RowBox[{"EdgeLabels", "\[Rule]", 
+        RowBox[{"e_", "\[RuleDelayed]", 
+         RowBox[{"Placed", "[", 
+          RowBox[{
+           RowBox[{"NumberForm", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{"n2nLattice", "[", "e", "]"}], "[", 
+               "\"\<TransactionalDistance\>\"", "]"}], "[", "w", "]"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"5", ",", "2"}], "}"}]}], "]"}], ",", "Center"}], 
+          "]"}]}]}], ",", 
+       RowBox[{
+       "GraphLayout", "\[Rule]", "\"\<SpringElectricalEmbedding\>\""}], ",", 
+       RowBox[{
+       "PlotLabel", "\[Rule]", 
+        "\"\<4-Node N2N Lattice \[Dash] transactional distance (w = \
+{0.5,0.3,0.2})\>\""}]}], "]"}], "]"}]}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"latencyPolicy", "=", 
+   RowBox[{"{", 
+    RowBox[{"0.7", ",", "0.2", ",", "0.1"}], "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"latRouter", "=", 
+   RowBox[{"GeodesicTransactionRouter", "[", 
+    RowBox[{"n2nLattice", ",", "latencyPolicy"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"pathLat", ",", "distLat"}], "}"}], "=", 
+   RowBox[{
+    RowBox[{"latRouter", "[", "\"\<CalculateGeodesicPath\>\"", "]"}], "[", 
+    RowBox[{"\"\<A\>\"", ",", "\"\<D\>\""}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+  "Print", "[", "\"\<\\nLatency-focused geodesic A \[RightArrow] D\>\"", 
+   "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<  Path:     \>\"", ",", "pathLat"}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<  Distance: \>\"", ",", "distLat"}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"HighlightGraph", "[", 
+   RowBox[{
+    RowBox[{"latRouter", "[", "\"\<GraphObject\>\"", "]"}], ",", 
+    RowBox[{"PathGraph", "[", "pathLat", "]"}], ",", 
+    RowBox[{"GraphHighlightStyle", "\[Rule]", "\"\<Thick\>\""}]}], "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"integrityPolicy", "=", 
+   RowBox[{"{", 
+    RowBox[{"0.1", ",", "0.1", ",", "0.8"}], "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"intRouter", "=", 
+   RowBox[{"GeodesicTransactionRouter", "[", 
+    RowBox[{"n2nLattice", ",", "integrityPolicy"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"pathInt", ",", "distInt"}], "}"}], "=", 
+   RowBox[{
+    RowBox[{"intRouter", "[", "\"\<CalculateGeodesicPath\>\"", "]"}], "[", 
+    RowBox[{"\"\<A\>\"", ",", "\"\<D\>\""}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+  "Print", "[", "\"\<\\nIntegrity-focused geodesic A \[RightArrow] D\>\"", 
+   "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<  Path:     \>\"", ",", "pathInt"}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<  Distance: \>\"", ",", "distInt"}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"HighlightGraph", "[", 
+   RowBox[{
+    RowBox[{"intRouter", "[", "\"\<GraphObject\>\"", "]"}], ",", 
+    RowBox[{"PathGraph", "[", "pathInt", "]"}], ",", 
+    RowBox[{"GraphHighlightStyle", "\[Rule]", "\"\<Thick\>\""}]}], "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"End", "[", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.959880085695529*^9, 3.959880085697122*^9}, {
+   3.959880151669765*^9, 3.959880168231444*^9}, {3.959880340685279*^9, 
+   3.959880350101639*^9}, 3.959962014473794*^9},
+ CellLabel->
+  "In[943]:=",ExpressionUUID->"030dcc7a-33e7-4358-97e6-4bcca3be3dcc"],
+
+Cell[BoxData["\<\"Daedalus`FabricCalculus`\"\>"], "Output",
+ CellChangeTimes->{
+  3.959879905816139*^9, {3.959879956422298*^9, 3.959879962635862*^9}, 
+   3.959880030017358*^9, 3.959880085904565*^9, {3.95988035029599*^9, 
+   3.959880363831675*^9}, 3.959881108392243*^9, 3.959881582973285*^9, 
+   3.9598821182934523`*^9, 3.95988260269301*^9, 3.95988273484669*^9, 
+   3.95988312314093*^9, 3.9599619091995907`*^9, 3.9599620172553263`*^9, 
+   3.959963304796134*^9},
+ CellLabel->
+  "Out[943]=",ExpressionUUID->"582fa7cb-651f-4bf5-83e9-9ace3d3e59b0"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"\\nLatency-focused geodesic A \[RightArrow] D\"\>"], "Print",
+ CellChangeTimes->{
+  3.959879217421621*^9, 3.959879802451449*^9, 3.959879906278357*^9, {
+   3.9598799569065037`*^9, 3.95987996275618*^9}, 3.959880030046329*^9, 
+   3.959880085930292*^9, {3.959880350319428*^9, 3.959880363854893*^9}, 
+   3.95988110842634*^9, 3.9598815830020313`*^9, 3.959882118319246*^9, 
+   3.959882602719171*^9, 3.959882734877515*^9, 3.959883123171476*^9, 
+   3.9599619092270937`*^9, 3.959962017278832*^9, 3.9599633048189907`*^9},
+ CellLabel->
+  "During evaluation of \
+In[943]:=",ExpressionUUID->"2d7ab2eb-600e-4995-9c5c-fc6cff5859f0"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"  Path:     \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"\<\"A\"\>", ",", "\<\"B\"\>", ",", "\<\"D\"\>"}], "}"}]}],
+  SequenceForm["  Path:     ", {"A", "B", "D"}],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.959879217421621*^9, 3.959879802451449*^9, 3.959879906278357*^9, {
+   3.9598799569065037`*^9, 3.95987996275618*^9}, 3.959880030046329*^9, 
+   3.959880085930292*^9, {3.959880350319428*^9, 3.959880363854893*^9}, 
+   3.95988110842634*^9, 3.9598815830020313`*^9, 3.959882118319246*^9, 
+   3.959882602719171*^9, 3.959882734877515*^9, 3.959883123171476*^9, 
+   3.9599619092270937`*^9, 3.959962017278832*^9, 3.959963304819645*^9},
+ CellLabel->
+  "During evaluation of \
+In[943]:=",ExpressionUUID->"5d5092ba-faa6-4180-ae72-d4c1aa9d0698"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"  Distance: \"\>", "\[InvisibleSpace]", "13.304109999999998`"}],
+  SequenceForm["  Distance: ", 13.304109999999998`],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.959879217421621*^9, 3.959879802451449*^9, 3.959879906278357*^9, {
+   3.9598799569065037`*^9, 3.95987996275618*^9}, 3.959880030046329*^9, 
+   3.959880085930292*^9, {3.959880350319428*^9, 3.959880363854893*^9}, 
+   3.95988110842634*^9, 3.9598815830020313`*^9, 3.959882118319246*^9, 
+   3.959882602719171*^9, 3.959882734877515*^9, 3.959883123171476*^9, 
+   3.9599619092270937`*^9, 3.959962017278832*^9, 3.959963304820503*^9},
+ CellLabel->
+  "During evaluation of \
+In[943]:=",ExpressionUUID->"30577729-ed64-40c2-8bfc-ad145d6f89e2"],
+
+Cell[BoxData["\<\"\\nIntegrity-focused geodesic A \[RightArrow] D\"\>"], \
+"Print",
+ CellChangeTimes->{
+  3.959879217421621*^9, 3.959879802451449*^9, 3.959879906278357*^9, {
+   3.9598799569065037`*^9, 3.95987996275618*^9}, 3.959880030046329*^9, 
+   3.959880085930292*^9, {3.959880350319428*^9, 3.959880363854893*^9}, 
+   3.95988110842634*^9, 3.9598815830020313`*^9, 3.959882118319246*^9, 
+   3.959882602719171*^9, 3.959882734877515*^9, 3.959883123171476*^9, 
+   3.9599619092270937`*^9, 3.959962017278832*^9, 3.959963304820994*^9},
+ CellLabel->
+  "During evaluation of \
+In[943]:=",ExpressionUUID->"8b540dd9-f9ef-44a1-959e-d9ee3c8d414c"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"  Path:     \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"\<\"A\"\>", ",", "\<\"B\"\>", ",", "\<\"D\"\>"}], "}"}]}],
+  SequenceForm["  Path:     ", {"A", "B", "D"}],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.959879217421621*^9, 3.959879802451449*^9, 3.959879906278357*^9, {
+   3.9598799569065037`*^9, 3.95987996275618*^9}, 3.959880030046329*^9, 
+   3.959880085930292*^9, {3.959880350319428*^9, 3.959880363854893*^9}, 
+   3.95988110842634*^9, 3.9598815830020313`*^9, 3.959882118319246*^9, 
+   3.959882602719171*^9, 3.959882734877515*^9, 3.959883123171476*^9, 
+   3.9599619092270937`*^9, 3.959962017278832*^9, 3.9599633048214407`*^9},
+ CellLabel->
+  "During evaluation of \
+In[943]:=",ExpressionUUID->"71a5bf81-5473-427a-a001-88e9d21016f5"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"  Distance: \"\>", "\[InvisibleSpace]", "1.9028799999999997`"}],
+  SequenceForm["  Distance: ", 1.9028799999999997`],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.959879217421621*^9, 3.959879802451449*^9, 3.959879906278357*^9, {
+   3.9598799569065037`*^9, 3.95987996275618*^9}, 3.959880030046329*^9, 
+   3.959880085930292*^9, {3.959880350319428*^9, 3.959880363854893*^9}, 
+   3.95988110842634*^9, 3.9598815830020313`*^9, 3.959882118319246*^9, 
+   3.959882602719171*^9, 3.959882734877515*^9, 3.959883123171476*^9, 
+   3.9599619092270937`*^9, 3.959962017278832*^9, 3.959963304821907*^9},
+ CellLabel->
+  "During evaluation of \
+In[943]:=",ExpressionUUID->"2c3521f7-6571-49e5-9106-27ffdce56462"]
+}, Open  ]]
+}, Open  ]],
+
+Cell["\<\
+This  code  implements  our  Fabric  Calculus, moving  beyond  the  flawed, \
+one - dimensional  metric  of  bandwidth  to  treat  the  network  as  a  \
+programmable  Transaction  Fabric . Our  FabricMetricTensor  function  \
+defines  the  true  \"cost\"  of  traversing  a  link  by  creating  a  multi \
+- dimensional  TransactionalDistance  that  balances  latency, bandwidth, and \
+ integrity\[LongDash]the  factors  that  actually  determine  the  success  \
+of  a  distributed  operation . The  GeodesicTransactionRouter  then  acts  \
+as  the  intelligence  of  the  Graph  Virtual  Machine  (GVM), taking  a  \
+specific  routing  policy\[LongDash]such  as  prioritizing  low  latency  or  \
+high  integrity\[LongDash]and  computing  the  optimal  \"geodesic\"  path  \
+across  the  N2N  Lattice . This  demonstrates, through  executable  code, \
+our  core  principle : routing  is  not  a  static  calculation  but  a  \
+dynamic, policy - driven  decision  that  adapts  the  fabric  to  the  \
+transactional  needs  of  the  application .\
+\>", "Input",
+ PageWidth->WindowWidth,
+ CellChangeTimes->{{3.9598808645809603`*^9, 3.959880868815897*^9}, 
+   3.959883130305579*^9},
+ FormatType->"TextForm",
+ FontFamily->"EB Garamond",
+ FontWeight->"Regular",
+ Background->GrayLevel[
+  1],ExpressionUUID->"0be2e56c-c2e5-403a-9fdf-f8ddcb9213ca"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"BeginPackage", "[", "\"\<Daedalus`FabricCalculus`\>\"", "]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"FabricMetricTensor", "::", "usage"}], "MessageName"], "=", 
+   "\"\<FabricMetricTensor[lat,bw,integrity] \[RightArrow] Association with   \
+ \\\"Metrics\\\" = {lat, 1/bw, 1 \[Dash] integrity} and a    \
+\\\"TransactionalDistance\\\"[w_List] method.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   StyleBox[
+    RowBox[{"GeodesicTransactionRouter", "::", "usage"}], "MessageName"], 
+   "=", "\"\<GeodesicTransactionRouter[topology_Association, weights_List]    \
+returns an Association with keys \\\"GraphObject\\\" and    \
+\\\"CalculateGeodesicPath\\\".\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "FabricMetricTensor", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"FabricMetricTensor", "[", 
+    RowBox[{
+     RowBox[{"lat_", "?", "NumericQ"}], ",", 
+     RowBox[{"bw_", "?", "NumericQ"}], ",", 
+     RowBox[{"integ_", "?", "NumericQ"}]}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"m", "=", 
+       RowBox[{"{", 
+        RowBox[{"lat", ",", 
+         FractionBox["1", 
+          RowBox[{"Max", "[", 
+           RowBox[{"bw", ",", "$MachineEpsilon"}], "]"}]], ",", 
+         RowBox[{"1", "-", "integ"}]}], "}"}]}], "}"}], ",", 
+     RowBox[{"Association", "[", 
+      RowBox[{
+       RowBox[{"\"\<Metrics\>\"", "\[Rule]", "m"}], ",", 
+       RowBox[{"\"\<TransactionalDistance\>\"", "\[Rule]", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"m", ".", "#1"}], "&"}], ")"}]}]}], "]"}]}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "GeodesicTransactionRouter", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"GeodesicTransactionRouter", "[", 
+    RowBox[{"topo_Association", ",", 
+     RowBox[{"weights", ":", 
+      RowBox[{"{", 
+       RowBox[{"__", "?", "NumericQ"}], "}"}]}]}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"edges", "=", 
+        RowBox[{"Keys", "[", "topo", "]"}]}], ",", "verts", ",", "wts", ",", 
+       "g"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"verts", "=", 
+       RowBox[{"DeleteDuplicates", "[", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{"List", "@@@", "edges"}], "]"}], "]"}]}], ";", 
+      RowBox[{"wts", "=", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"topo", "[", "#1", "]"}], "[", 
+            "\"\<TransactionalDistance\>\"", "]"}], "[", "weights", "]"}], 
+          "&"}], ")"}], "/@", "edges"}]}], ";", 
+      RowBox[{"g", "=", 
+       RowBox[{"Graph", "[", 
+        RowBox[{"verts", ",", "edges", ",", 
+         RowBox[{"EdgeWeight", "\[Rule]", "wts"}], ",", 
+         RowBox[{
+         "GraphLayout", "\[Rule]", "\"\<SpringElectricalEmbedding\>\""}]}], 
+        "]"}]}], ";", 
+      RowBox[{"Association", "[", 
+       RowBox[{
+        RowBox[{"\"\<Topology\>\"", "\[Rule]", "topo"}], ",", 
+        RowBox[{"\"\<PolicyWeights\>\"", "\[Rule]", "weights"}], ",", 
+        RowBox[{"\"\<GraphObject\>\"", "\[Rule]", "g"}], ",", 
+        RowBox[{"\"\<CalculateGeodesicPath\>\"", "\[RuleDelayed]", 
+         RowBox[{"Function", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"src", ",", "dst"}], "}"}], ",", 
+           RowBox[{"Module", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"p", ",", "dist"}], "}"}], ",", 
+             RowBox[{
+              RowBox[{"p", "=", 
+               RowBox[{"FindShortestPath", "[", 
+                RowBox[{"g", ",", "src", ",", "dst"}], "]"}]}], ";", 
+              RowBox[{"dist", "=", 
+               RowBox[{"Total", "[", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"topo", "[", "#1", "]"}], "[", 
+                    "\"\<TransactionalDistance\>\"", "]"}], "[", "weights", 
+                    "]"}], "&"}], ")"}], "/@", 
+                 RowBox[{"UndirectedEdge", "@@@", 
+                  RowBox[{"Partition", "[", 
+                   RowBox[{"p", ",", "2", ",", "1"}], "]"}]}]}], "]"}]}], ";", 
+              RowBox[{"{", 
+               RowBox[{"p", ",", "dist"}], "}"}]}]}], "]"}]}], "]"}]}]}], 
+       "]"}]}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"UpdateEdgeMetric", "[", 
+    RowBox[{"topo_Association", ",", "e_UndirectedEdge", ",", "newMetric_"}], 
+    "]"}], ":=", 
+   RowBox[{"Replace", "[", 
+    RowBox[{"topo", ",", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"e", "\[Rule]", "_"}], "}"}], "\[RuleDelayed]", 
+      RowBox[{"e", "\[Rule]", "newMetric"}]}], ",", 
+     RowBox[{"{", "1", "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"UpdateMetricWithTokenFlow", "[", 
+    RowBox[{"metric_Association", ",", 
+     RowBox[{"flow_", "?", "NumericQ"}]}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"lat", ",", "bw", ",", "integ"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"lat", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"metric", "[", "\"\<Metrics\>\"", "]"}], 
+         "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}], " ", 
+        RowBox[{"(", 
+         RowBox[{"1", "+", 
+          RowBox[{"20", " ", "flow"}]}], ")"}]}]}], ";", 
+      RowBox[{"bw", "=", 
+       FractionBox[
+        RowBox[{"1", "-", 
+         RowBox[{"0.9", " ", "flow"}]}], 
+        RowBox[{
+         RowBox[{"metric", "[", "\"\<Metrics\>\"", "]"}], 
+         "\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}]]}], ";", 
+      RowBox[{"integ", "=", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"1", "-", 
+          RowBox[{
+           RowBox[{"metric", "[", "\"\<Metrics\>\"", "]"}], 
+           "\[LeftDoubleBracket]", "3", "\[RightDoubleBracket]"}]}], ")"}], 
+        " ", 
+        RowBox[{"(", 
+         RowBox[{"1", "-", 
+          RowBox[{"0.9", " ", "flow"}]}], ")"}]}]}], ";", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"lat", ",", "bw", ",", "integ"}], "]"}]}]}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"topology4", "=", 
+   RowBox[{"Association", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"\"\<A\>\"", "\[UndirectedEdge]", "\"\<B\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"10", ",", "100", ",", "0.999"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<A\>\"", "\[UndirectedEdge]", "\"\<C\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"12", ",", "100", ",", "0.998"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<B\>\"", "\[UndirectedEdge]", "\"\<C\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"11", ",", "100", ",", "0.999"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<B\>\"", "\[UndirectedEdge]", "\"\<D\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"9", ",", "100", ",", "0.9999"}], "]"}]}], ",", 
+     RowBox[{
+      RowBox[{"\"\<C\>\"", "\[UndirectedEdge]", "\"\<D\>\""}], "\[Rule]", 
+      RowBox[{"FabricMetricTensor", "[", 
+       RowBox[{"80", ",", "20", ",", "0.85"}], "]"}]}]}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"latencyPolicy", "=", 
+   RowBox[{"{", 
+    RowBox[{"0.7", ",", "0.2", ",", "0.1"}], "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"integrityPolicy", "=", 
+   RowBox[{"{", 
+    RowBox[{"0.1", ",", "0.1", ",", "0.8"}], "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+  "Print", "[", 
+   "\"\<Slide flow \[RightArrow] watch path switch  (\[TildeTilde] 0.4) and \
+edge label update\>\"", "]"}], ";"}], "\n", 
+ RowBox[{"Manipulate", "[", 
+  RowBox[{
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "stressedTopo", ",", "router", ",", "path", ",", "dist", ",", 
+       "metricAB", ",", "g"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"stressedTopo", "=", 
+       RowBox[{"UpdateEdgeMetric", "[", 
+        RowBox[{"topology4", ",", 
+         RowBox[{"\"\<A\>\"", "\[UndirectedEdge]", "\"\<B\>\""}], ",", 
+         RowBox[{"metricAB", "=", 
+          RowBox[{"UpdateMetricWithTokenFlow", "[", 
+           RowBox[{
+            RowBox[{"topology4", "[", 
+             RowBox[{"\"\<A\>\"", "\[UndirectedEdge]", "\"\<B\>\""}], "]"}], 
+            ",", "flow"}], "]"}]}]}], "]"}]}], ";", 
+      RowBox[{"router", "=", 
+       RowBox[{"GeodesicTransactionRouter", "[", 
+        RowBox[{"stressedTopo", ",", "latencyPolicy"}], "]"}]}], ";", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"path", ",", "dist"}], "}"}], "=", 
+       RowBox[{
+        RowBox[{"router", "[", "\"\<CalculateGeodesicPath\>\"", "]"}], "[", 
+        RowBox[{"\"\<A\>\"", ",", "\"\<D\>\""}], "]"}]}], ";", 
+      RowBox[{"g", "=", 
+       RowBox[{"Graph", "[", 
+        RowBox[{
+         RowBox[{"Keys", "[", "stressedTopo", "]"}], ",", 
+         RowBox[{"Keys", "[", "stressedTopo", "]"}], ",", 
+         RowBox[{
+         "GraphLayout", "\[Rule]", "\"\<SpringElectricalEmbedding\>\""}], ",", 
+         RowBox[{"VertexLabels", "\[Rule]", "\"\<Name\>\""}], ",", 
+         RowBox[{"EdgeLabels", "\[Rule]", 
+          RowBox[{"e_", "\[RuleDelayed]", 
+           RowBox[{"Placed", "[", 
+            RowBox[{
+             RowBox[{"NumberForm", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"stressedTopo", "[", "e", "]"}], "[", 
+                 "\"\<TransactionalDistance\>\"", "]"}], "[", "latencyPolicy",
+                 "]"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"4", ",", "2"}], "}"}]}], "]"}], ",", "Center"}], 
+            "]"}]}]}], ",", 
+         RowBox[{"EdgeStyle", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"\"\<A\>\"", "\[UndirectedEdge]", "\"\<B\>\""}], 
+            "\[Rule]", "Thick"}], "}"}]}]}], "]"}]}], ";", 
+      RowBox[{"Column", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Style", "[", 
+          RowBox[{
+           RowBox[{"TemplateApply", "[", 
+            RowBox[{
+            "\"\<A\[LeftRightArrow]B metric  =  latency: `` ns   bw: `` Gbps  \
+ integ: ``\>\"", ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"metricAB", "[", "\"\<Metrics\>\"", "]"}], 
+               "\[LeftDoubleBracket]", 
+               RowBox[{"{", 
+                RowBox[{"1", ",", "2", ",", "3"}], "}"}], 
+               "\[RightDoubleBracket]"}], "/.", "\[VeryThinSpace]", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"x_", "?", "NumericQ"}], "\[RuleDelayed]", 
+                RowBox[{"NumberForm", "[", 
+                 RowBox[{"x", ",", 
+                  RowBox[{"{", 
+                   RowBox[{"5", ",", "2"}], "}"}]}], "]"}]}], "}"}]}]}], 
+            "]"}], ",", "Small", ",", 
+           RowBox[{"GrayLevel", "[", "0.3", "]"}]}], "]"}], ",", 
+         RowBox[{"Row", "[", 
+          RowBox[{"{", 
+           RowBox[{"\"\<Geodesic Path: \>\"", ",", "path"}], "}"}], "]"}], 
+         ",", 
+         RowBox[{"Row", "[", 
+          RowBox[{"{", 
+           RowBox[{"\"\<Transactional Distance: \>\"", ",", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{"dist", ",", 
+              RowBox[{"{", 
+               RowBox[{"5", ",", "2"}], "}"}]}], "]"}]}], "}"}], "]"}], ",", 
+         RowBox[{"HighlightGraph", "[", 
+          RowBox[{"g", ",", 
+           RowBox[{"PathGraph", "[", "path", "]"}], ",", 
+           RowBox[{"GraphHighlightStyle", "\[Rule]", "\"\<Thick\>\""}]}], 
+          "]"}]}], "}"}], "]"}]}]}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "flow", ",", "0.", ",", "\"\<token flow on A\[LeftRightArrow]B\>\""}], 
+      "}"}], ",", "0", ",", "1", ",", "0.02", ",", 
+     RowBox[{"Appearance", "\[Rule]", "\"\<Labeled\>\""}]}], "}"}], ",", 
+   RowBox[{"SaveDefinitions", "\[Rule]", "True"}]}], "]"}], "\n", 
+ RowBox[{
+  RowBox[{"End", "[", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.9598813175031757`*^9, 3.9598813553034477`*^9}, 
+   3.959962000411327*^9},
+ CellLabel->
+  "In[839]:=",ExpressionUUID->"c9969b88-6a38-48d8-99cf-cd9fca1150fe"],
+
+Cell[BoxData["\<\"Daedalus`FabricCalculus`\"\>"], "Output",
+ CellChangeTimes->{
+  3.959879328776978*^9, 3.959880905673108*^9, 3.959881036462398*^9, 
+   3.959881137888939*^9, {3.959881184004881*^9, 3.95988119426003*^9}, 
+   3.9598812747995253`*^9, {3.959881317722602*^9, 3.959881355542918*^9}, 
+   3.959881845207281*^9, 3.959882119674176*^9, 3.959882604143958*^9, 
+   3.959882736384251*^9, {3.959882893748112*^9, 3.959882923572641*^9}, 
+   3.959883124966526*^9, 3.959883193917582*^9, 3.959883647850295*^9, 
+   3.95996191303016*^9, 3.9599620034485598`*^9},
+ CellLabel->
+  "Out[839]=",ExpressionUUID->"a2a58300-6fa8-4ef4-bc88-a94a0358b63f"],
+
+Cell[BoxData["\<\"Slide flow \[RightArrow] watch path switch  (\[TildeTilde] \
+0.4) and edge label update\"\>"], "Print",
+ CellChangeTimes->{
+  3.959879328591681*^9, 3.959880905499317*^9, 3.959881036295965*^9, 
+   3.959881137890295*^9, {3.959881184006598*^9, 3.959881194261097*^9}, 
+   3.959881275033001*^9, {3.959881317723391*^9, 3.959881355544128*^9}, 
+   3.959881845208577*^9, 3.959882119675628*^9, 3.959882604145508*^9, 
+   3.959882736386322*^9, {3.959882893750159*^9, 3.959882923574485*^9}, 
+   3.9598831249688797`*^9, 3.959883193919617*^9, 3.959883647851558*^9, 
+   3.959961913042556*^9, 3.959962003449317*^9},
+ CellLabel->
+  "During evaluation of \
+In[839]:=",ExpressionUUID->"220e555a-8ecc-4047-b673-4ac467689073"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{Daedalus`FabricCalculus`Private`flow$$ = 1., 
+    Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
+    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
+    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[Daedalus`FabricCalculus`Private`flow$$], 0., 
+       "token flow on A\[LeftRightArrow]B"}, 0, 1, 0.02, ControlType -> 
+      Manipulator}}, Typeset`size$$ = {
+    875., {273.17974853515625`, 282.82025146484375`}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = False}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {Daedalus`FabricCalculus`Private`flow$$ = 0.}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> 
+      Module[{Daedalus`FabricCalculus`Private`stressedTopo$, 
+         Daedalus`FabricCalculus`Private`router$, 
+         Daedalus`FabricCalculus`Private`path$, 
+         Daedalus`FabricCalculus`Private`dist$, 
+         Daedalus`FabricCalculus`Private`metricAB$, 
+         Daedalus`FabricCalculus`Private`g$}, 
+        Daedalus`FabricCalculus`Private`stressedTopo$ = 
+         Daedalus`FabricCalculus`Private`UpdateEdgeMetric[
+          Daedalus`FabricCalculus`Private`topology4, 
+           UndirectedEdge["A", "B"], 
+           Daedalus`FabricCalculus`Private`metricAB$ = 
+           Daedalus`FabricCalculus`Private`UpdateMetricWithTokenFlow[
+             Daedalus`FabricCalculus`Private`topology4[
+              UndirectedEdge["A", "B"]], 
+             Daedalus`FabricCalculus`Private`flow$$]]; 
+        Daedalus`FabricCalculus`Private`router$ = 
+         Daedalus`FabricCalculus`GeodesicTransactionRouter[
+          Daedalus`FabricCalculus`Private`stressedTopo$, 
+           Daedalus`FabricCalculus`Private`latencyPolicy]; {
+          Daedalus`FabricCalculus`Private`path$, 
+           Daedalus`FabricCalculus`Private`dist$} = 
+         Daedalus`FabricCalculus`Private`router$["CalculateGeodesicPath"][
+          "A", "D"]; Daedalus`FabricCalculus`Private`g$ = Graph[
+           Keys[Daedalus`FabricCalculus`Private`stressedTopo$], 
+           Keys[Daedalus`FabricCalculus`Private`stressedTopo$], GraphLayout -> 
+           "SpringElectricalEmbedding", VertexLabels -> "Name", 
+           EdgeLabels -> (Pattern[Daedalus`FabricCalculus`Private`e$, 
+              Blank[]] :> Placed[
+              NumberForm[
+               Daedalus`FabricCalculus`Private`stressedTopo$[
+               Daedalus`FabricCalculus`Private`e$]["TransactionalDistance"][
+               Daedalus`FabricCalculus`Private`latencyPolicy], {4, 2}], 
+              Center]), EdgeStyle -> {UndirectedEdge["A", "B"] -> Thick}]; 
+        Column[{
+           Style[
+            TemplateApply[
+            "A\[LeftRightArrow]B metric  =  latency: `` ns   bw: `` Gbps   \
+integ: ``", 
+             ReplaceAll[
+              Part[
+               Daedalus`FabricCalculus`Private`metricAB$["Metrics"], {1, 2, 
+               3}], {PatternTest[
+                 Pattern[Daedalus`FabricCalculus`Private`x, 
+                  Blank[]], NumericQ] :> 
+               NumberForm[Daedalus`FabricCalculus`Private`x, {5, 2}]}]], 
+            Small, 
+            GrayLevel[0.3]], 
+           Row[{"Geodesic Path: ", Daedalus`FabricCalculus`Private`path$}], 
+           Row[{"Transactional Distance: ", 
+             NumberForm[Daedalus`FabricCalculus`Private`dist$, {5, 2}]}], 
+           HighlightGraph[Daedalus`FabricCalculus`Private`g$, 
+            PathGraph[Daedalus`FabricCalculus`Private`path$], 
+            GraphHighlightStyle -> "Thick"]}]], 
+      "Specifications" :> {{{
+         Daedalus`FabricCalculus`Private`flow$$, 0., 
+          "token flow on A\[LeftRightArrow]B"}, 0, 1, 0.02, Appearance -> 
+         "Labeled"}}, "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{929., {329., 339.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    Initialization:>({Daedalus`FabricCalculus`Private`UpdateEdgeMetric[
+         Pattern[Daedalus`FabricCalculus`Private`topo, 
+          Blank[Association]], 
+         Pattern[Daedalus`FabricCalculus`Private`e, 
+          Blank[UndirectedEdge]], 
+         Pattern[Daedalus`FabricCalculus`Private`newMetric, 
+          Blank[]]] := 
+       Replace[Daedalus`FabricCalculus`Private`topo, {
+          Daedalus`FabricCalculus`Private`e -> Blank[]} :> (
+          Daedalus`FabricCalculus`Private`e -> 
+          Daedalus`FabricCalculus`Private`newMetric), {1}], 
+       Daedalus`FabricCalculus`Private`topology4 = <|
+        UndirectedEdge["A", "B"] -> <|
+          "Metrics" -> {10, 1/100, 0.0010000000000000009`}, 
+           "TransactionalDistance" -> (Dot[
+            Daedalus`FabricCalculus`Private`m$16419965, #]& )|>, 
+         UndirectedEdge["A", "C"] -> <|
+          "Metrics" -> {12, 1/100, 0.0020000000000000018`}, 
+           "TransactionalDistance" -> (Dot[
+            Daedalus`FabricCalculus`Private`m$16419966, #]& )|>, 
+         UndirectedEdge["B", "C"] -> <|
+          "Metrics" -> {11, 1/100, 0.0010000000000000009`}, 
+           "TransactionalDistance" -> (Dot[
+            Daedalus`FabricCalculus`Private`m$16419967, #]& )|>, 
+         UndirectedEdge["B", "D"] -> <|
+          "Metrics" -> {9, 1/100, 0.00009999999999998899}, 
+           "TransactionalDistance" -> (Dot[
+            Daedalus`FabricCalculus`Private`m$16419968, #]& )|>, 
+         UndirectedEdge["C", "D"] -> <|
+          "Metrics" -> {80, 1/20, 0.15000000000000002`}, 
+           "TransactionalDistance" -> (Dot[
+            Daedalus`FabricCalculus`Private`m$16419969, #]& )|>|>, 
+       Attributes[Daedalus`FabricCalculus`Private`m$16419965] = {Temporary}, 
+       Daedalus`FabricCalculus`Private`m$16419965 = {
+        10, 1/100, 0.0010000000000000009`}, 
+       Attributes[Daedalus`FabricCalculus`Private`m$16419966] = {Temporary}, 
+       Daedalus`FabricCalculus`Private`m$16419966 = {
+        12, 1/100, 0.0020000000000000018`}, 
+       Attributes[Daedalus`FabricCalculus`Private`m$16419967] = {Temporary}, 
+       Daedalus`FabricCalculus`Private`m$16419967 = {
+        11, 1/100, 0.0010000000000000009`}, 
+       Attributes[Daedalus`FabricCalculus`Private`m$16419968] = {Temporary}, 
+       Daedalus`FabricCalculus`Private`m$16419968 = {
+        9, 1/100, 0.00009999999999998899}, 
+       Attributes[Daedalus`FabricCalculus`Private`m$16419969] = {Temporary}, 
+       Daedalus`FabricCalculus`Private`m$16419969 = {
+        80, 1/20, 0.15000000000000002`}, 
+       Daedalus`FabricCalculus`Private`UpdateMetricWithTokenFlow[
+         Pattern[Daedalus`FabricCalculus`Private`metric, 
+          Blank[Association]], 
+         PatternTest[
+          Pattern[Daedalus`FabricCalculus`Private`flow, 
+           Blank[]], NumericQ]] := 
+       Module[{Daedalus`FabricCalculus`Private`lat, 
+          Daedalus`FabricCalculus`Private`bw, 
+          Daedalus`FabricCalculus`Private`integ}, 
+         Daedalus`FabricCalculus`Private`lat = Part[
+             Daedalus`FabricCalculus`Private`metric["Metrics"], 1] (1 + 
+            20 Daedalus`FabricCalculus`Private`flow); 
+         Daedalus`FabricCalculus`Private`bw = (1 - 0.9 
+            Daedalus`FabricCalculus`Private`flow)/Part[
+            Daedalus`FabricCalculus`Private`metric["Metrics"], 2]; 
+         Daedalus`FabricCalculus`Private`integ = (1 - Part[
+             Daedalus`FabricCalculus`Private`metric["Metrics"], 3]) (1 - 0.9 
+            Daedalus`FabricCalculus`Private`flow); 
+         Daedalus`FabricCalculus`FabricMetricTensor[
+          Daedalus`FabricCalculus`Private`lat, 
+           Daedalus`FabricCalculus`Private`bw, 
+           Daedalus`FabricCalculus`Private`integ]], 
+       Daedalus`FabricCalculus`FabricMetricTensor[
+         PatternTest[
+          Pattern[Daedalus`FabricCalculus`Private`lat, 
+           Blank[]], NumericQ], 
+         PatternTest[
+          Pattern[Daedalus`FabricCalculus`Private`bw, 
+           Blank[]], NumericQ], 
+         PatternTest[
+          Pattern[Daedalus`FabricCalculus`Private`integ, 
+           Blank[]], NumericQ]] := 
+       Module[{Daedalus`FabricCalculus`Private`m = {
+           Daedalus`FabricCalculus`Private`lat, 1/Max[
+            Daedalus`FabricCalculus`Private`bw, $MachineEpsilon], 1 - 
+            Daedalus`FabricCalculus`Private`integ}}, <|
+         "Metrics" -> Daedalus`FabricCalculus`Private`m, 
+          "TransactionalDistance" -> (Dot[
+           Daedalus`FabricCalculus`Private`m, #]& )|>], 
+       Daedalus`FabricCalculus`GeodesicTransactionRouter[
+         Pattern[Daedalus`FabricCalculus`Private`topo, 
+          Blank[Association]], 
+         Pattern[Daedalus`FabricCalculus`Private`weights, {
+           PatternTest[
+            BlankSequence[], NumericQ]}]] := 
+       Module[{Daedalus`FabricCalculus`Private`edges = 
+          Keys[Daedalus`FabricCalculus`Private`topo], 
+          Daedalus`FabricCalculus`Private`verts, 
+          Daedalus`FabricCalculus`Private`wts, 
+          Daedalus`FabricCalculus`Private`g}, 
+         Daedalus`FabricCalculus`Private`verts = DeleteDuplicates[
+            Flatten[
+             MapApply[List, Daedalus`FabricCalculus`Private`edges]]]; 
+         Daedalus`FabricCalculus`Private`wts = 
+          Map[Daedalus`FabricCalculus`Private`topo[#][
+            "TransactionalDistance"][
+            Daedalus`FabricCalculus`Private`weights]& , 
+            Daedalus`FabricCalculus`Private`edges]; 
+         Daedalus`FabricCalculus`Private`g = 
+          Graph[Daedalus`FabricCalculus`Private`verts, 
+            Daedalus`FabricCalculus`Private`edges, EdgeWeight -> 
+            Daedalus`FabricCalculus`Private`wts, GraphLayout -> 
+            "SpringElectricalEmbedding"]; <|
+          "Topology" -> Daedalus`FabricCalculus`Private`topo, "PolicyWeights" -> 
+           Daedalus`FabricCalculus`Private`weights, "GraphObject" -> 
+           Daedalus`FabricCalculus`Private`g, "CalculateGeodesicPath" :> 
+           Function[{
+             Daedalus`FabricCalculus`Private`src, 
+              Daedalus`FabricCalculus`Private`dst}, 
+             
+             Module[{Daedalus`FabricCalculus`Private`p, 
+               Daedalus`FabricCalculus`Private`dist}, 
+              Daedalus`FabricCalculus`Private`p = 
+               FindShortestPath[
+                Daedalus`FabricCalculus`Private`g, 
+                 Daedalus`FabricCalculus`Private`src, 
+                 Daedalus`FabricCalculus`Private`dst]; 
+              Daedalus`FabricCalculus`Private`dist = Total[
+                 Map[
+                 Daedalus`FabricCalculus`Private`topo[#][
+                  "TransactionalDistance"][
+                  Daedalus`FabricCalculus`Private`weights]& , 
+                  MapApply[UndirectedEdge, 
+                   Partition[Daedalus`FabricCalculus`Private`p, 2, 1]]]]; {
+               Daedalus`FabricCalculus`Private`p, 
+                Daedalus`FabricCalculus`Private`dist}]]|>], 
+       Daedalus`FabricCalculus`Private`latencyPolicy = {0.7, 0.2, 0.1}}; 
+     Typeset`initDone$$ = True),
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.959879328776978*^9, 3.959880905673108*^9, 3.959881036462398*^9, 
+   3.959881137888939*^9, {3.959881184004881*^9, 3.95988119426003*^9}, 
+   3.9598812747995253`*^9, {3.959881317722602*^9, 3.959881355542918*^9}, 
+   3.959881845207281*^9, 3.959882119674176*^9, 3.959882604143958*^9, 
+   3.959882736384251*^9, {3.959882893748112*^9, 3.959882923572641*^9}, 
+   3.959883124966526*^9, 3.959883193917582*^9, 3.959883647850295*^9, 
+   3.95996191303016*^9, 3.95996200347018*^9},
+ CellLabel->
+  "Out[853]=",ExpressionUUID->"49b01a7d-eebc-4b0b-9329-d3843b62955c"]
+}, Open  ]],
+
+Cell["\<\
+This Mathematica package, DaedaelusFabricCalculus`, provides a \"code as \
+proof\" demonstration of the Daedaelus networking philosophy. It reframes the \
+problem of network routing away from the traditional, flawed metric of raw \
+bandwidth and towards a multi-dimensional understanding of transactional \
+efficiency.
+
+The calculus is built on two core components:
+
+FabricMetricTensor: This function establishes the true \"cost\" of sending a \
+transaction over a link. Instead of just considering bandwidth, it creates a \
+TransactionalDistance that is a weighted function of latency, bandwidth, and \
+link integrity. This reflects the reality that modern distributed \
+applications are bottlenecked by latency and unreliability, not just bits per \
+second.
+
+GeodesicTransactionRouter: This function embodies the principle of the \
+\"Graph Virtual Machine\" (GVM). It takes a physical network topology (the \
+N2N Lattice) and an application-defined policy (the weights) to compute the \
+optimal, or \"geodesic,\" path for a transaction.
+
+The interactive Manipulate block brings these concepts to life. By adjusting \
+the flow slider, you can simulate stress on a particular link (A<->B). As the \
+transactional cost of that link increases, you can see the \
+GeodesicTransactionRouter dynamically recalculate the optimal path in \
+real-time, switching from A-B-D to A-C-D when the former becomes too \
+\"expensive\" according to the latency-focused policy. This is not just a \
+routing algorithm; it's a demonstration of a fully adaptive, policy-aware \
+Transaction Fabric that intelligently routes traffic based on the holistic \
+health of the network and the specific requirements of the application. It is \
+an escape from the entire statistical contention model of classical Ethernet.\
+\
+\>", "Input",
+ PageWidth->WindowWidth,
+ CellChangeTimes->{{3.9598808645809603`*^9, 3.959880868815897*^9}, 
+   3.959883130305579*^9, 3.959883615776642*^9, {3.959883663921831*^9, 
+   3.959883678037898*^9}},
+ FormatType->"TextForm",
+ FontFamily->"EB Garamond",
+ FontWeight->"Regular",
+ Background->GrayLevel[
+  1],ExpressionUUID->"9dc1f13c-98bc-4a78-9cbe-eb040b12db3a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Quiet", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Unprotect", "[", "path", "]"}], ";", 
+     RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{
+      StyleBox[
+       RowBox[{"ClearAll", "::", "wrsym"}], "MessageName"], ",", 
+      StyleBox[
+       RowBox[{"General", "::", "munprot"}], "MessageName"]}], "}"}]}], "]"}],
+   ";"}], "\n", 
+ RowBox[{
+  RowBox[{"$Assumptions", "=", 
+   RowBox[{
+    RowBox[{"M", ">", "0"}], "&&", 
+    RowBox[{"r", ">", "0"}]}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"coords", "=", 
+   RowBox[{"{", 
+    RowBox[{"t", ",", "r", ",", "\[Theta]", ",", "\[Phi]"}], "}"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"gCov", "=", 
+   RowBox[{"DiagonalMatrix", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"-", 
+       RowBox[{"(", 
+        RowBox[{"1", "-", 
+         FractionBox[
+          RowBox[{"2", " ", "M"}], "r"]}], ")"}]}], ",", 
+      FractionBox["1", 
+       RowBox[{"1", "-", 
+        FractionBox[
+         RowBox[{"2", " ", "M"}], "r"]}]], ",", 
+      SuperscriptBox["r", "2"], ",", 
+      RowBox[{
+       SuperscriptBox["r", "2"], " ", 
+       SuperscriptBox[
+        RowBox[{"Sin", "[", "\[Theta]", "]"}], "2"]}]}], "}"}], "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"gCon", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"Inverse", "[", "gCov", "]"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"christoffel", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Simplify", "[", 
+      RowBox[{
+       FractionBox["1", "2"], " ", 
+       RowBox[{
+        UnderoverscriptBox["\[Sum]", "\[Mu]", "4"], 
+        RowBox[{
+         RowBox[{"gCon", "\[LeftDoubleBracket]", 
+          RowBox[{"\[Alpha]", ",", "\[Mu]"}], "\[RightDoubleBracket]"}], " ", 
+         
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            SubscriptBox["\[PartialD]", 
+             RowBox[{
+             "coords", "\[LeftDoubleBracket]", "\[Gamma]", 
+              "\[RightDoubleBracket]"}]], 
+            RowBox[{"gCov", "\[LeftDoubleBracket]", 
+             RowBox[{"\[Mu]", ",", "\[Beta]"}], "\[RightDoubleBracket]"}]}], 
+           "+", 
+           RowBox[{
+            SubscriptBox["\[PartialD]", 
+             RowBox[{
+             "coords", "\[LeftDoubleBracket]", "\[Beta]", 
+              "\[RightDoubleBracket]"}]], 
+            RowBox[{"gCov", "\[LeftDoubleBracket]", 
+             RowBox[{"\[Mu]", ",", "\[Gamma]"}], "\[RightDoubleBracket]"}]}], 
+           "-", 
+           RowBox[{
+            SubscriptBox["\[PartialD]", 
+             RowBox[{
+             "coords", "\[LeftDoubleBracket]", "\[Mu]", 
+              "\[RightDoubleBracket]"}]], 
+            RowBox[{"gCov", "\[LeftDoubleBracket]", 
+             RowBox[{"\[Beta]", ",", "\[Gamma]"}], 
+             "\[RightDoubleBracket]"}]}]}], ")"}]}]}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Alpha]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Beta]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Gamma]", ",", "4"}], "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"riemann", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Simplify", "[", 
+      RowBox[{
+       RowBox[{
+        SubscriptBox["\[PartialD]", 
+         RowBox[{
+         "coords", "\[LeftDoubleBracket]", "\[Gamma]", 
+          "\[RightDoubleBracket]"}]], 
+        RowBox[{"christoffel", "\[LeftDoubleBracket]", 
+         RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Delta]"}], 
+         "\[RightDoubleBracket]"}]}], "-", 
+       RowBox[{
+        SubscriptBox["\[PartialD]", 
+         RowBox[{
+         "coords", "\[LeftDoubleBracket]", "\[Delta]", 
+          "\[RightDoubleBracket]"}]], 
+        RowBox[{"christoffel", "\[LeftDoubleBracket]", 
+         RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Gamma]"}], 
+         "\[RightDoubleBracket]"}]}], "+", 
+       RowBox[{
+        UnderoverscriptBox["\[Sum]", "\[Epsilon]", "4"], 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"christoffel", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Alpha]", ",", "\[Gamma]", ",", "\[Epsilon]"}], 
+            "\[RightDoubleBracket]"}], " ", 
+           RowBox[{"christoffel", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Epsilon]", ",", "\[Beta]", ",", "\[Delta]"}], 
+            "\[RightDoubleBracket]"}]}], "-", 
+          RowBox[{
+           RowBox[{"christoffel", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Alpha]", ",", "\[Delta]", ",", "\[Epsilon]"}], 
+            "\[RightDoubleBracket]"}], " ", 
+           RowBox[{"christoffel", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Epsilon]", ",", "\[Beta]", ",", "\[Gamma]"}], 
+            "\[RightDoubleBracket]"}]}]}], ")"}]}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Alpha]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Beta]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Gamma]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Delta]", ",", "4"}], "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"riemannLL", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Simplify", "[", 
+      RowBox[{
+       UnderoverscriptBox["\[Sum]", "\[Mu]", "4"], 
+       RowBox[{
+        RowBox[{"gCov", "\[LeftDoubleBracket]", 
+         RowBox[{"\[Alpha]", ",", "\[Mu]"}], "\[RightDoubleBracket]"}], " ", 
+        RowBox[{"riemann", "\[LeftDoubleBracket]", 
+         RowBox[{"\[Mu]", ",", "\[Beta]", ",", "\[Gamma]", ",", "\[Delta]"}], 
+         "\[RightDoubleBracket]"}]}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Alpha]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Beta]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Gamma]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Delta]", ",", "4"}], "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"riemannUU", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"Simplify", "[", 
+      RowBox[{
+       UnderoverscriptBox["\[Sum]", "\[Mu]", "4"], 
+       RowBox[{
+        UnderoverscriptBox["\[Sum]", "\[Nu]", "4"], 
+        RowBox[{
+         UnderoverscriptBox["\[Sum]", "\[Rho]", "4"], 
+         RowBox[{
+          UnderoverscriptBox["\[Sum]", "\[Sigma]", "4"], 
+          RowBox[{
+           RowBox[{"gCon", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Alpha]", ",", "\[Mu]"}], "\[RightDoubleBracket]"}], 
+           " ", 
+           RowBox[{"gCon", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Beta]", ",", "\[Nu]"}], "\[RightDoubleBracket]"}], " ", 
+           RowBox[{"gCon", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Gamma]", ",", "\[Rho]"}], "\[RightDoubleBracket]"}], 
+           " ", 
+           RowBox[{"gCon", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Delta]", ",", "\[Sigma]"}], "\[RightDoubleBracket]"}], 
+           " ", 
+           RowBox[{"riemannLL", "\[LeftDoubleBracket]", 
+            RowBox[{"\[Mu]", ",", "\[Nu]", ",", "\[Rho]", ",", "\[Sigma]"}], 
+            "\[RightDoubleBracket]"}]}]}]}]}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Alpha]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Beta]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Gamma]", ",", "4"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Delta]", ",", "4"}], "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"kretschmann", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{
+     UnderoverscriptBox["\[Sum]", "\[Alpha]", "4"], 
+     RowBox[{
+      UnderoverscriptBox["\[Sum]", "\[Beta]", "4"], 
+      RowBox[{
+       UnderoverscriptBox["\[Sum]", "\[Gamma]", "4"], 
+       RowBox[{
+        UnderoverscriptBox["\[Sum]", "\[Delta]", "4"], 
+        RowBox[{
+         RowBox[{"riemannLL", "\[LeftDoubleBracket]", 
+          RowBox[{
+          "\[Alpha]", ",", "\[Beta]", ",", "\[Gamma]", ",", "\[Delta]"}], 
+          "\[RightDoubleBracket]"}], " ", 
+         RowBox[{"riemannUU", "\[LeftDoubleBracket]", 
+          RowBox[{
+          "\[Alpha]", ",", "\[Beta]", ",", "\[Gamma]", ",", "\[Delta]"}], 
+          "\[RightDoubleBracket]"}]}]}]}]}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"singularities", "=", 
+   RowBox[{"Simplify", "[", 
+    RowBox[{"Solve", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Denominator", "[", 
+        RowBox[{"Together", "[", "kretschmann", "]"}], "]"}], "\[Equal]", 
+       "0"}], ",", "r", ",", 
+      TemplateBox[{},
+       "Reals"]}], "]"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<Kretschmann scalar  K(r) = \>\"", ",", 
+    RowBox[{"FullSimplify", "[", "kretschmann", "]"}]}], "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<Curvature singularities : \>\"", ",", "singularities"}], 
+   "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.959963272902566*^9, 3.959963278258978*^9}},
+ CellLabel->
+  "In[928]:=",ExpressionUUID->"de8efb62-13d7-4f00-999d-1a2a5b8ab808"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Kretschmann scalar  K(r) = \"\>", "\[InvisibleSpace]", 
+   FractionBox[
+    RowBox[{"48", " ", 
+     SuperscriptBox["M", "2"]}], 
+    SuperscriptBox["r", "6"]]}],
+  SequenceForm[
+  "Kretschmann scalar  K(r) = ", 48 $CellContext`M^2 $CellContext`r^(-6)],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.959963216811901*^9, {3.959963273390676*^9, 3.959963279926268*^9}},
+ CellLabel->
+  "During evaluation of \
+In[928]:=",ExpressionUUID->"bd5ef2a3-2db3-46bc-992f-8cf3c2d58d53"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Curvature singularities : \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", "}"}]}],
+  SequenceForm["Curvature singularities : ", {}],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.959963216811901*^9, {3.959963273390676*^9, 3.9599632799268436`*^9}},
+ CellLabel->
+  "During evaluation of \
+In[928]:=",ExpressionUUID->"cfe55c2a-f236-4aa7-b1a1-08ba25156788"]
+}, Open  ]]
+}, Open  ]],
+
+Cell["\<\
+This Mathematica package, DaedaelusFabricCalculus`, provides a \"code as \
+proof\" demonstration of the Daedaelus networking philosophy. It reframes the \
+problem of network routing away from the traditional, flawed metric of raw \
+bandwidth and towards a multi-dimensional understanding of transactional \
+efficiency.
+
+The calculus is built on two core components:
+
+FabricMetricTensor: This function establishes the true \"cost\" of sending a \
+transaction over a link. Instead of just considering bandwidth, it creates a \
+TransactionalDistance that is a weighted function of latency, bandwidth, and \
+link integrity. This reflects the reality that modern distributed \
+applications are bottlenecked by latency and unreliability, not just bits per \
+second.
+
+GeodesicTransactionRouter: This function embodies the principle of the \
+\"Graph Virtual Machine\" (GVM). It takes a physical network topology (the \
+N2N Lattice) and an application-defined policy (the weights) to compute the \
+optimal, or \"geodesic,\" path for a transaction.
+
+The interactive Manipulate block brings these concepts to life. By adjusting \
+the flow slider, you can simulate stress on a particular link (A<->B). As the \
+transactional cost of that link increases, you can see the \
+GeodesicTransactionRouter dynamically recalculate the optimal path in \
+real-time, switching from A-B-D to A-C-D when the former becomes too \
+\"expensive\" according to the latency-focused policy. This is not just a \
+routing algorithm; it's a demonstration of a fully adaptive, policy-aware \
+Transaction Fabric that intelligently routes traffic based on the holistic \
+health of the network and the specific requirements of the application. It is \
+an escape from the entire statistical contention model of classical Ethernet.\
+\
+\>", "Input",
+ PageWidth->WindowWidth,
+ CellChangeTimes->{{3.9598808645809603`*^9, 3.959880868815897*^9}, 
+   3.959883130305579*^9, 3.959883615776642*^9, {3.959883663921831*^9, 
+   3.959883678037898*^9}},
+ FormatType->"TextForm",
+ FontFamily->"EB Garamond",
+ FontWeight->"Regular",
+ Background->GrayLevel[
+  1],ExpressionUUID->"57090cf0-c699-4f56-a49c-f679d1676480"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"coords", "=", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", "r", ",", "\[Theta]", ",", "\[Phi]"}], "}"}]}], ";"}],
+    ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"scale", "=", 
+     RowBox[{"a", "[", "t", "]"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"metric", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", "1"}], ",", "0", ",", "0", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", 
+         SuperscriptBox["scale", "2"], ",", "0", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", 
+         RowBox[{
+          SuperscriptBox["scale", "2"], " ", 
+          SuperscriptBox["r", "2"]}], ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "0", ",", 
+         RowBox[{
+          SuperscriptBox["scale", "2"], " ", 
+          SuperscriptBox["r", "2"], " ", 
+          SuperscriptBox[
+           RowBox[{"Sin", "[", "\[Theta]", "]"}], "2"]}]}], "}"}]}], "}"}]}], 
+    ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"H", "=", 
+     FractionBox[
+      RowBox[{
+       SubscriptBox["\[PartialD]", "t"], "scale"}], "scale"]}], ";"}], ")"}], 
+  " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Hdot", "=", 
+     RowBox[{
+      SubscriptBox["\[PartialD]", "t"], "H"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Gtt", "=", 
+     RowBox[{"3", " ", 
+      SuperscriptBox["H", "2"]}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Grr", "=", 
+     RowBox[{
+      RowBox[{"-", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"2", " ", "Hdot"}], "+", 
+         RowBox[{"3", " ", 
+          SuperscriptBox["H", "2"]}]}], ")"}]}], " ", 
+      SuperscriptBox["scale", "2"]}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"G\[Theta]\[Theta]", "=", 
+     RowBox[{"Grr", " ", 
+      SuperscriptBox["r", "2"]}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"G\[Phi]\[Phi]", "=", 
+     RowBox[{"Grr", " ", 
+      SuperscriptBox["r", "2"], " ", 
+      SuperscriptBox[
+       RowBox[{"Sin", "[", "\[Theta]", "]"}], "2"]}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Einstein", "=", 
+     RowBox[{"Association", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0"}], "}"}], "\[Rule]", "Gtt"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "1"}], "}"}], "\[Rule]", "Grr"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"2", ",", "2"}], "}"}], "\[Rule]", "G\[Theta]\[Theta]"}], 
+       ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"3", ",", "3"}], "}"}], "\[Rule]", "G\[Phi]\[Phi]"}]}], 
+      "]"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"\[Kappa]", "=", 
+     RowBox[{"8", " ", "\[Pi]"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Stress", "=", 
+     RowBox[{"Association", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0"}], "}"}], "\[Rule]", 
+        RowBox[{"\[Rho]", "[", "t", "]"}]}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "1"}], "}"}], "\[Rule]", "0"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"2", ",", "2"}], "}"}], "\[Rule]", "0"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"3", ",", "3"}], "}"}], "\[Rule]", "0"}]}], "]"}]}], ";"}], 
+   ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"friedmannEq", "=", 
+     RowBox[{"Simplify", "[", 
+      RowBox[{
+       RowBox[{"Einstein", "[", 
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0"}], "}"}], "]"}], "\[Equal]", 
+       RowBox[{"\[Kappa]", " ", 
+        RowBox[{"Stress", "[", 
+         RowBox[{"{", 
+          RowBox[{"0", ",", "0"}], "}"}], "]"}]}]}], "]"}]}], ";"}], ")"}], 
+  " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"accelerationEq", "=", 
+     RowBox[{"Simplify", "[", 
+      RowBox[{
+       FractionBox[
+        RowBox[{"Einstein", "[", 
+         RowBox[{"{", 
+          RowBox[{"1", ",", "1"}], "}"}], "]"}], 
+        SuperscriptBox["scale", "2"]], "\[Equal]", 
+       RowBox[{"\[Kappa]", " ", 
+        RowBox[{"Stress", "[", 
+         RowBox[{"{", 
+          RowBox[{"1", ",", "1"}], "}"}], "]"}]}]}], "]"}]}], ";"}], ")"}], 
+  " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"reducedEqs", "=", 
+     RowBox[{"{", 
+      RowBox[{"friedmannEq", ",", "accelerationEq"}], "}"}]}], ";"}], ")"}], 
+  " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"exactSolutionQ", "=", "True"}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"solution", "=", 
+     RowBox[{"Association", "[", 
+      RowBox[{
+       RowBox[{"\"\<ExactSolutionQ\>\"", "\[Rule]", "exactSolutionQ"}], ",", 
+       RowBox[{
+       "\"\<ReducedEvolutionEquations\>\"", "\[Rule]", "reducedEqs"}]}], 
+      "]"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", 
+     "\"\<Is the Dust-filled FLRW Universe an Exact Solution?\>\"", "]"}], 
+    ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"solution", "[", "\"\<ExactSolutionQ\>\"", "]"}], "]"}], ";"}], 
+   ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", "\"\<\\nEvolution Equations for the Fabric:\>\"", "]"}], 
+    ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"solution", "[", "\"\<ReducedEvolutionEquations\>\"", "]"}], 
+     "]"}], ";"}], ")"}]}]], "Input",
+ CellChangeTimes->{{3.959882495404409*^9, 3.959882495406467*^9}, 
+   3.959961981997772*^9, 3.959962049235606*^9},
+ CellLabel->
+  "In[941]:=",ExpressionUUID->"fafe9b7c-3e52-4c07-a0c4-e0553a62b3c5"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"Is the Dust-filled FLRW Universe an Exact Solution?\"\>"], \
+"Print",
+ CellChangeTimes->{3.959882495606902*^9, 3.959882607067238*^9, 
+  3.959882899698012*^9, 3.959883198745885*^9, 3.9598837776938963`*^9, 
+  3.959963285993454*^9},
+ CellLabel->
+  "During evaluation of \
+In[941]:=",ExpressionUUID->"a797752a-a9ba-4cb5-8157-008849989cca"],
+
+Cell[BoxData["True"], "Print",
+ CellChangeTimes->{3.959882495606902*^9, 3.959882607067238*^9, 
+  3.959882899698012*^9, 3.959883198745885*^9, 3.9598837776938963`*^9, 
+  3.959963285994111*^9},
+ CellLabel->
+  "During evaluation of \
+In[941]:=",ExpressionUUID->"59fcfa3f-ebe9-433f-af19-132925dc357b"],
+
+Cell[BoxData["\<\"\\nEvolution Equations for the Fabric:\"\>"], "Print",
+ CellChangeTimes->{3.959882495606902*^9, 3.959882607067238*^9, 
+  3.959882899698012*^9, 3.959883198745885*^9, 3.9598837776938963`*^9, 
+  3.959963285994759*^9},
+ CellLabel->
+  "During evaluation of \
+In[941]:=",ExpressionUUID->"fb133ad1-7d5c-4aeb-9382-f32ecf27d798"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    FractionBox[
+     RowBox[{"3", " ", 
+      SuperscriptBox[
+       RowBox[{
+        SuperscriptBox["a", "\[Prime]",
+         MultilineFunction->None], "[", "t", "]"}], "2"]}], 
+     SuperscriptBox[
+      RowBox[{"a", "[", "t", "]"}], "2"]], "\[Equal]", 
+    RowBox[{"8", " ", "\[Pi]", " ", 
+     RowBox[{"\[Rho]", "[", "t", "]"}]}]}], ",", 
+   RowBox[{
+    RowBox[{
+     FractionBox[
+      SuperscriptBox[
+       RowBox[{
+        SuperscriptBox["a", "\[Prime]",
+         MultilineFunction->None], "[", "t", "]"}], "2"], 
+      RowBox[{"a", "[", "t", "]"}]], "+", 
+     RowBox[{"2", " ", 
+      RowBox[{
+       SuperscriptBox["a", "\[Prime]\[Prime]",
+        MultilineFunction->None], "[", "t", "]"}]}]}], "\[Equal]", "0"}]}], 
+  "}"}]], "Print",
+ CellChangeTimes->{3.959882495606902*^9, 3.959882607067238*^9, 
+  3.959882899698012*^9, 3.959883198745885*^9, 3.9598837776938963`*^9, 
+  3.959963285995268*^9},
+ CellLabel->
+  "During evaluation of \
+In[941]:=",ExpressionUUID->"588789a1-eda1-4e3b-838a-96f72d6dba4d"]
+}, Open  ]],
+
+Cell[BoxData[
+ SuperscriptBox["Null", "22"]], "Output",
+ CellChangeTimes->{3.959882607071041*^9, 3.959882899702481*^9, 
+  3.959883198750538*^9, 3.959883777696328*^9, 3.959963285995764*^9},
+ CellLabel->
+  "Out[941]=",ExpressionUUID->"bdf8244c-3055-45d0-a08d-cc9886ce43bb"]
+}, Open  ]],
+
+Cell["\<\
+This notebook demonstrates the rigorous, first-principles approach that \
+underpins the Daedaelus philosophy. Using Mathematica as a formal \
+specification language, we analyze the geometry of Schwarzschild spacetime by \
+starting with its metric tensor and systematically deriving the Christoffel \
+symbols, the Riemann curvature tensor, and finally the Kretschmann scalar. \
+The purpose of this calculation is to identify true, invariant physical \
+singularities in the spacetime curvature, distinguishing them from artifacts \
+of a particular coordinate system. This \"code-as-proof\" methodology is \
+central to our work , reflecting our commitment to analyzing the fundamental, \
+invariant properties of any complex system, whether it is a gravitational \
+field or a network Transaction Fabric.\
+\>", "Input",
+ PageWidth->WindowWidth,
+ CellChangeTimes->{{3.9598808645809603`*^9, 3.959880868815897*^9}, 
+   3.959883130305579*^9, 3.959883615776642*^9, {3.959883663921831*^9, 
+   3.959883678037898*^9}, {3.959883785442307*^9, 3.9598837887535*^9}},
+ FormatType->"TextForm",
+ FontFamily->"EB Garamond",
+ FontWeight->"Regular",
+ Background->GrayLevel[
+  1],ExpressionUUID->"c3fedc98-96e3-4f83-bbde-b9bc7ba0f049"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"coords", "=", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", "x", ",", "y", ",", "z"}], "}"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"\[Eta]cov", "=", 
+     RowBox[{"DiagonalMatrix", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "1"}], ",", "1", ",", "1", ",", "1"}], "}"}], "]"}]}], 
+    ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"\[Eta]con", "=", "\[Eta]cov"}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"\[Eta]", "[", 
+      RowBox[{"\[Mu]_", ",", "\[Nu]_"}], "]"}], ":=", 
+     RowBox[{"\[Eta]cov", "\[LeftDoubleBracket]", 
+      RowBox[{"\[Mu]", ",", "\[Nu]"}], "\[RightDoubleBracket]"}]}], ";"}], 
+   ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"\[Eta]Inv", "[", 
+      RowBox[{"\[Mu]_", ",", "\[Nu]_"}], "]"}], ":=", 
+     RowBox[{"\[Eta]con", "\[LeftDoubleBracket]", 
+      RowBox[{"\[Mu]", ",", "\[Nu]"}], "\[RightDoubleBracket]"}]}], ";"}], 
+   ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"A\[Mu]", "=", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", "0", ",", "0", ",", 
+       RowBox[{
+        RowBox[{"-", "E0"}], " ", "t"}]}], "}"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Fcov", "[", 
+      RowBox[{"\[Mu]_", ",", "\[Nu]_"}], "]"}], ":=", 
+     RowBox[{
+      RowBox[{
+       SubscriptBox["\[PartialD]", 
+        RowBox[{
+        "coords", "\[LeftDoubleBracket]", "\[Mu]", "\[RightDoubleBracket]"}]], 
+       RowBox[{
+       "A\[Mu]", "\[LeftDoubleBracket]", "\[Nu]", "\[RightDoubleBracket]"}]}],
+       "-", 
+      RowBox[{
+       SubscriptBox["\[PartialD]", 
+        RowBox[{
+        "coords", "\[LeftDoubleBracket]", "\[Nu]", "\[RightDoubleBracket]"}]], 
+       RowBox[{
+       "A\[Mu]", "\[LeftDoubleBracket]", "\[Mu]", 
+        "\[RightDoubleBracket]"}]}]}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"FcovMat", "=", 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Simplify", "[", 
+        RowBox[{"Fcov", "[", 
+         RowBox[{"\[Mu]", ",", "\[Nu]"}], "]"}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Mu]", ",", "4"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Nu]", ",", "4"}], "}"}]}], "]"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Fcon", "[", 
+      RowBox[{"\[Mu]_", ",", "\[Nu]_"}], "]"}], ":=", 
+     RowBox[{
+      UnderoverscriptBox["\[Sum]", "\[Alpha]", "4"], 
+      RowBox[{
+       UnderoverscriptBox["\[Sum]", "\[Beta]", "4"], 
+       RowBox[{
+        RowBox[{"\[Eta]Inv", "[", 
+         RowBox[{"\[Mu]", ",", "\[Alpha]"}], "]"}], " ", 
+        RowBox[{"\[Eta]Inv", "[", 
+         RowBox[{"\[Nu]", ",", "\[Beta]"}], "]"}], " ", 
+        RowBox[{"Fcov", "[", 
+         RowBox[{"\[Alpha]", ",", "\[Beta]"}], "]"}]}]}]}]}], ";"}], ")"}], 
+  " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"FconMat", "=", 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Simplify", "[", 
+        RowBox[{"Fcon", "[", 
+         RowBox[{"\[Mu]", ",", "\[Nu]"}], "]"}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Mu]", ",", "4"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Nu]", ",", "4"}], "}"}]}], "]"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Evec", "=", 
+     RowBox[{"Simplify", "[", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"-", 
+         RowBox[{"Fcov", "[", 
+          RowBox[{"\[Mu]", ",", "1"}], "]"}]}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Mu]", ",", "2", ",", "4"}], "}"}]}], "]"}], "]"}]}], 
+    ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Print", "[", "\"\<Electric Field (E):\>\"", "]"}], ";"}], ")"}], 
+  " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Print", "[", "Evec", "]"}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"\[Mu]0", "=", 
+     SubscriptBox["\[Mu]", "0"]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"FinvF", "=", 
+     RowBox[{
+      FractionBox["1", "2"], " ", 
+      RowBox[{
+       UnderoverscriptBox["\[Sum]", "\[Alpha]", "4"], 
+       RowBox[{
+        UnderoverscriptBox["\[Sum]", "\[Beta]", "4"], 
+        RowBox[{
+         RowBox[{"Fcon", "[", 
+          RowBox[{"\[Alpha]", ",", "\[Beta]"}], "]"}], " ", 
+         RowBox[{"Fcov", "[", 
+          RowBox[{"\[Alpha]", ",", "\[Beta]"}], "]"}]}]}]}]}]}], ";"}], ")"}],
+   " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"T", "[", 
+      RowBox[{"\[Mu]_", ",", "\[Nu]_"}], "]"}], ":=", 
+     FractionBox[
+      RowBox[{
+       RowBox[{
+        UnderoverscriptBox["\[Sum]", "\[Alpha]", "4"], 
+        RowBox[{
+         RowBox[{"Fcon", "[", 
+          RowBox[{"\[Mu]", ",", "\[Alpha]"}], "]"}], " ", 
+         RowBox[{"Fcon", "[", 
+          RowBox[{"\[Nu]", ",", "\[Alpha]"}], "]"}], " ", 
+         RowBox[{"\[Eta]Inv", "[", 
+          RowBox[{"\[Alpha]", ",", "\[Alpha]"}], "]"}]}]}], "-", 
+       RowBox[{
+        FractionBox["1", "4"], " ", 
+        RowBox[{"\[Eta]Inv", "[", 
+         RowBox[{"\[Mu]", ",", "\[Nu]"}], "]"}], " ", "FinvF"}]}], 
+      "\[Mu]0"]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Tmat", "=", 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Simplify", "[", 
+        RowBox[{"T", "[", 
+         RowBox[{"\[Mu]", ",", "\[Nu]"}], "]"}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Mu]", ",", "4"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Nu]", ",", "4"}], "}"}]}], "]"}]}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+    "Print", "[", 
+     "\"\<\\nElectromagnetic Stress-Energy Tensor  T^{\[Mu]\[Nu]}:\>\"", 
+     "]"}], ";"}], ")"}], " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"MatrixForm", "[", "Tmat", "]"}], "]"}], ";"}], ")"}]}]], "Input",\
+
+ CellChangeTimes->{{3.959882547156417*^9, 3.959882547158515*^9}, 
+   3.9599619896559563`*^9},
+ CellLabel->
+  "In[942]:=",ExpressionUUID->"dc07310c-5adf-4178-bdfe-9c88d167d36f"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"Electric Field (E):\"\>"], "Print",
+ CellChangeTimes->{
+  3.959879756874618*^9, 3.9598824979171543`*^9, 3.9598825473315372`*^9, 
+   3.959882608401*^9, {3.9598829012280807`*^9, 3.959882904782747*^9}, 
+   3.959883199842031*^9, 3.959963287827984*^9},
+ CellLabel->
+  "During evaluation of \
+In[942]:=",ExpressionUUID->"e915d58a-abc1-4472-8479-e84755c508da"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"0", ",", "0", ",", 
+   RowBox[{"-", "E0"}]}], "}"}]], "Print",
+ CellChangeTimes->{
+  3.959879756874618*^9, 3.9598824979171543`*^9, 3.9598825473315372`*^9, 
+   3.959882608401*^9, {3.9598829012280807`*^9, 3.959882904782747*^9}, 
+   3.959883199842031*^9, 3.95996328782864*^9},
+ CellLabel->
+  "During evaluation of \
+In[942]:=",ExpressionUUID->"0eba6220-913a-4345-8397-8a69d21a120d"],
+
+Cell[BoxData["\<\"\\nElectromagnetic Stress-Energy Tensor  \
+T^{\[Mu]\[Nu]}:\"\>"], "Print",
+ CellChangeTimes->{
+  3.959879756874618*^9, 3.9598824979171543`*^9, 3.9598825473315372`*^9, 
+   3.959882608401*^9, {3.9598829012280807`*^9, 3.959882904782747*^9}, 
+   3.959883199842031*^9, 3.959963287842442*^9},
+ CellLabel->
+  "During evaluation of \
+In[942]:=",ExpressionUUID->"78fd127e-0ced-4105-9114-765bdf72430a"],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {
+      FractionBox[
+       RowBox[{"3", " ", 
+        SuperscriptBox["E0", "2"]}], 
+       RowBox[{"4", " ", 
+        SubscriptBox["1", "0"]}]], "0", "0", "0"},
+     {"0", 
+      FractionBox[
+       SuperscriptBox["E0", "2"], 
+       RowBox[{"4", " ", 
+        SubscriptBox["2", "0"]}]], "0", "0"},
+     {"0", "0", 
+      FractionBox[
+       SuperscriptBox["E0", "2"], 
+       RowBox[{"4", " ", 
+        SubscriptBox["3", "0"]}]], "0"},
+     {"0", "0", "0", 
+      RowBox[{"-", 
+       FractionBox[
+        RowBox[{"3", " ", 
+         SuperscriptBox["E0", "2"]}], 
+        RowBox[{"4", " ", 
+         SubscriptBox["4", "0"]}]]}]}
+    },
+    GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[BoxForm`e$]]]], "Print",
+ CellChangeTimes->{
+  3.959879756874618*^9, 3.9598824979171543`*^9, 3.9598825473315372`*^9, 
+   3.959882608401*^9, {3.9598829012280807`*^9, 3.959882904782747*^9}, 
+   3.959883199842031*^9, 3.959963287843129*^9},
+ CellLabel->
+  "During evaluation of \
+In[942]:=",ExpressionUUID->"957bd759-6dc8-422e-b89b-a4794b5c337e"]
+}, Open  ]],
+
+Cell[BoxData[
+ SuperscriptBox["Null", "20"]], "Output",
+ CellChangeTimes->{
+  3.959882608410262*^9, {3.959882901234566*^9, 3.95988290478724*^9}, 
+   3.959883199853374*^9, 3.959963287843706*^9},
+ CellLabel->
+  "Out[942]=",ExpressionUUID->"ca9a4d16-3214-4c66-8675-3a28a8a443b1"]
+}, Open  ]],
+
+Cell[TextData[{
+ "This notebook provides another \"code-as-proof\" demonstration of our \
+first-principles approach, this time modeling a fundamental system from \
+classical electrodynamics within the formal framework of Mathematica. By \
+defining the electromagnetic four-potential for a uniform electric field in \
+flat Minkowski spacetime, we systematically derive the Faraday tensor ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    SubscriptBox["F", "\[Mu]\[Nu]"]}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "38c18534-0d63-459a-af66-445798055eb2"],
+ ") and, most importantly, the full electromagnetic stress-energy tensor ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    SuperscriptBox["T", "\[Mu]\[Nu]"]}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "cad14060-a08a-436e-89bd-1182a7a3ae23"],
+ "). This tensor describes the complete distribution of energy and momentum \
+of the field, representing the \"stress\" it places on the fabric of \
+spacetime. This formal analysis mirrors our approach to networking: just as \
+we seek to understand the full transactional state on our network fabric \
+beyond simple metrics, here we compute the full energetic and momentum \
+profile of the field, not just the field strength itself. It is another \
+example of using formal methods to analyze the fundamental, invariant \
+structures of a physical system."
+}], "Input",
+ PageWidth->WindowWidth,
+ CellChangeTimes->{{3.9598808645809603`*^9, 3.959880868815897*^9}, 
+   3.959883130305579*^9, 3.959883615776642*^9, {3.959883663921831*^9, 
+   3.959883678037898*^9}, {3.959883785442307*^9, 3.959883868445855*^9}, {
+   3.959883903556088*^9, 3.9598839450816717`*^9}},
+ FormatType->"TextForm",
+ FontFamily->"EB Garamond",
+ FontWeight->"Regular",
+ Background->GrayLevel[
+  1],ExpressionUUID->"157970d6-8c09-4635-bf85-3b640eb128d9"]
+},
+WindowSize->{1512, 864},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"14.0 for Mac OS X ARM (64-bit) (December 12, 2023)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"f23f4001-2826-4dcb-8d57-1daa132c07fd"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 516, 11, 58, "Input",ExpressionUUID->"8df16be1-1fc4-4456-a295-9a6216ca93fa"],
+Cell[1077, 33, 1189, 20, 88, "Input",ExpressionUUID->"b0a990e9-486d-48c9-bdd0-0e835dbce96a"],
+Cell[CellGroupData[{
+Cell[2291, 57, 9476, 247, 979, "Input",ExpressionUUID->"030dcc7a-33e7-4358-97e6-4bcca3be3dcc"],
+Cell[11770, 306, 543, 9, 41, "Output",ExpressionUUID->"582fa7cb-651f-4bf5-83e9-9ace3d3e59b0"],
+Cell[CellGroupData[{
+Cell[12338, 319, 634, 10, 52, "Print",ExpressionUUID->"2d7ab2eb-600e-4995-9c5c-fc6cff5859f0"],
+Cell[12975, 331, 810, 16, 28, "Print",ExpressionUUID->"5d5092ba-faa6-4180-ae72-d4c1aa9d0698"],
+Cell[13788, 349, 749, 14, 28, "Print",ExpressionUUID->"30577729-ed64-40c2-8bfc-ad145d6f89e2"],
+Cell[14540, 365, 636, 11, 52, "Print",ExpressionUUID->"8b540dd9-f9ef-44a1-959e-d9ee3c8d414c"],
+Cell[15179, 378, 812, 16, 28, "Print",ExpressionUUID->"71a5bf81-5473-427a-a001-88e9d21016f5"],
+Cell[15994, 396, 749, 14, 28, "Print",ExpressionUUID->"2c3521f7-6571-49e5-9106-27ffdce56462"]
+}, Open  ]]
+}, Open  ]],
+Cell[16770, 414, 1354, 23, 106, "Input",ExpressionUUID->"0be2e56c-c2e5-403a-9fdf-f8ddcb9213ca"],
+Cell[CellGroupData[{
+Cell[18149, 441, 12300, 316, 1095, "Input",ExpressionUUID->"c9969b88-6a38-48d8-99cf-cd9fca1150fe"],
+Cell[30452, 759, 637, 10, 41, "Output",ExpressionUUID->"a2a58300-6fa8-4ef4-bc88-a94a0358b63f"],
+Cell[31092, 771, 722, 12, 28, "Print",ExpressionUUID->"220e555a-8ecc-4047-b673-4ac467689073"],
+Cell[31817, 785, 12131, 233, 691, "Output",ExpressionUUID->"49b01a7d-eebc-4b0b-9329-d3843b62955c"]
+}, Open  ]],
+Cell[43963, 1021, 2169, 41, 289, "Input",ExpressionUUID->"9dc1f13c-98bc-4a78-9cbe-eb040b12db3a"],
+Cell[CellGroupData[{
+Cell[46157, 1066, 8883, 239, 702, "Input",ExpressionUUID->"de8efb62-13d7-4f00-999d-1a2a5b8ab808"],
+Cell[CellGroupData[{
+Cell[55065, 1309, 529, 14, 54, "Print",ExpressionUUID->"bd5ef2a3-2db3-46bc-992f-8cf3c2d58d53"],
+Cell[55597, 1325, 407, 10, 28, "Print",ExpressionUUID->"cfe55c2a-f236-4aa7-b1a1-08ba25156788"]
+}, Open  ]]
+}, Open  ]],
+Cell[56031, 1339, 2169, 41, 289, "Input",ExpressionUUID->"57090cf0-c699-4f56-a49c-f679d1676480"],
+Cell[CellGroupData[{
+Cell[58225, 1384, 5879, 191, 276, "Input",ExpressionUUID->"fafe9b7c-3e52-4c07-a0c4-e0553a62b3c5"],
+Cell[CellGroupData[{
+Cell[64129, 1579, 353, 7, 28, "Print",ExpressionUUID->"a797752a-a9ba-4cb5-8157-008849989cca"],
+Cell[64485, 1588, 296, 6, 28, "Print",ExpressionUUID->"59fcfa3f-ebe9-433f-af19-132925dc357b"],
+Cell[64784, 1596, 338, 6, 52, "Print",ExpressionUUID->"fb133ad1-7d5c-4aeb-9382-f32ecf27d798"],
+Cell[65125, 1604, 1066, 32, 57, "Print",ExpressionUUID->"588789a1-eda1-4e3b-838a-96f72d6dba4d"]
+}, Open  ]],
+Cell[66206, 1639, 271, 5, 43, "Output",ExpressionUUID->"bdf8244c-3055-45d0-a08d-cc9886ce43bb"]
+}, Open  ]],
+Cell[66492, 1647, 1221, 21, 88, "Input",ExpressionUUID->"c3fedc98-96e3-4f83-bbde-b9bc7ba0f049"],
+Cell[CellGroupData[{
+Cell[67738, 1672, 6114, 190, 349, "Input",ExpressionUUID->"dc07310c-5adf-4178-bdfe-9c88d167d36f"],
+Cell[CellGroupData[{
+Cell[73877, 1866, 371, 7, 28, "Print",ExpressionUUID->"e915d58a-abc1-4472-8479-e84755c508da"],
+Cell[74251, 1875, 419, 10, 28, "Print",ExpressionUUID->"0eba6220-913a-4345-8397-8a69d21a120d"],
+Cell[74673, 1887, 410, 8, 52, "Print",ExpressionUUID->"78fd127e-0ced-4105-9114-765bdf72430a"],
+Cell[75086, 1897, 1402, 43, 171, "Print",ExpressionUUID->"957bd759-6dc8-422e-b89b-a4794b5c337e"]
+}, Open  ]],
+Cell[76503, 1943, 276, 6, 43, "Output",ExpressionUUID->"ca9a4d16-3214-4c66-8675-3a28a8a443b1"]
+}, Open  ]],
+Cell[76794, 1952, 1868, 37, 111, "Input",ExpressionUUID->"157970d6-8c09-4635-bf85-3b640eb128d9"]
+}
+]
+*)
+
